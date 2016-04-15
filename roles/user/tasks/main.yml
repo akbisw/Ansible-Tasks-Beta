@@ -1,0 +1,23 @@
+---
+# Create User Account
+
+- name: set a password for the new user and ensure ssh keys exist
+  user: name={{ item.key }} shell=/bin/bash groups="{{ item.value.groups }}" password="{{ item.value.password }}" generate_ssh_key=yes state=present ssh_key_bits=4028 update_password=always state=present
+  with_dict: "{{ users }}"
+  become: yes
+
+- name: Sudoers | update sudoers file and validate
+  lineinfile: "dest=/etc/sudoers
+    insertafter=EOF
+    line='{{ item.key }} ALL=(ALL) NOPASSWD: ALL'
+    regexp='{{ item.key }} ALL=(ALL) NOPASSWD: ALL'
+    state=present"
+  with_dict: "{{ users }}"
+  become: yes
+
+- name: Reboot server
+  command: /sbin/reboot
+  become: yes
+
+- name: Wait for the server to finish rebooting
+  local_action: wait_for host="{{ inventory_hostname }}" search_regex=OpenSSH port=22 timeout=300
