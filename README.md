@@ -4,6 +4,7 @@ Using my own private cloud as a playground for these ansible playbooks. Basic us
 ### vars/main.yml
 <pre><code>
   reboot: false
+  update_packages: 1
   users:
     abiswas:
       name: Amit Biswas
