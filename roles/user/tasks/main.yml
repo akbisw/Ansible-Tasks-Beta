@@ -15,6 +15,16 @@
   with_dict: "{{ users }}"
   become: yes
 
+# Only Meant for new virtual machine to upgrade packages and reboot
+# Pass options to dpkg on run
+- name: Update packages through apt
+  apt: upgrade=dist update_cache=yes
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and update_packages == 1
+  
+- name: Update packages through yum
+  yum: name=* state=latest
+  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and update_packages == 1
+
 - name: Reboot server
   command: /sbin/reboot
   become: yes
@@ -22,3 +32,4 @@
 
 - name: Wait for the server to finish rebooting
   local_action: wait_for host="{{ inventory_hostname }}" search_regex=OpenSSH port=22 timeout=300
+  when: reboot
