@@ -1,5 +1,5 @@
-# Ansible-Tasks-Beta
-Using my own private cloud as a playground for these ansible playbooks. Basic user module, docker swarm setup and more to come.
+# Ansible_Cloud
+Using my own private cloud as a playground for these ansible playbooks. Basic packages, user module, docker swarm setup and more to come.
 
 Compatibility: DEBIAN and RHEL
 
@@ -7,10 +7,10 @@ Compatibility: DEBIAN and RHEL
 <pre><code>
   reboot: false
   update_packages: 1
+  install_essentials: 1
   users:
     abiswas:
       name: Amit Biswas
-      password: 'hashedpassword'
-      groups: "sudo"
+      ssh_pub_key: "id_rsa.pub"
 </pre></code>
   .......
