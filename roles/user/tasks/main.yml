@@ -1,23 +1,13 @@
 ---
 # Create User Account
 
-- name: set a password for the new user and ensure ssh keys exist
-  user: name={{ item.key }} shell=/bin/bash groups="{{ item.value.groups }}" password="{{ item.value.password }}" generate_ssh_key=yes state=present ssh_key_bits=4028 update_password=always state=present
+- name: create new users and ensure ssh keys exist
+  user: name={{ item.key }} shell=/bin/bash groups="{{ item.value.groups }}" generate_ssh_key=yes state=present ssh_key_bits=4028
   with_dict: "{{ users }}"
-  become: yes
 
-- name: Add pub key to authorized
+- name: Add pub key to authorized_key file
   authorized_key: user={{ item.key  }} key="{{ item.value.key }}"
   with_dict: "{{ users  }}"
-  become: yes
-
-- name: Sudoers | update sudoers file and validate
-  lineinfile: "dest=/etc/sudoers
-    insertafter=EOF
-    line='{{ item.key }} ALL=(ALL) NOPASSWD: ALL'
-    regexp='{{ item.key }} ALL=(ALL) NOPASSWD: ALL'
-    state=present"
-  with_dict: "{{ users }}"
   become: yes
 
 # Only Meant for new virtual machine to upgrade packages and reboot
