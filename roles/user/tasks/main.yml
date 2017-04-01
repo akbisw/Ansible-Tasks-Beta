@@ -1,14 +1,25 @@
 ---
 # Create User Account
 
+# Set the superuser group name
+
 - name: create new users and ensure ssh keys exist
-  user: name={{ item.key }} shell=/bin/bash groups="{{ item.value.groups }}" generate_ssh_key=yes state=present ssh_key_bits=4028
+  user: name={{ item.key }} shell=/bin/bash generate_ssh_key=yes state=present ssh_key_bits=4028 password="{{ item.value.pass }}"
   with_dict: "{{ users }}"
 
+- name: Add user to sudo
+  user: name={{ item.key }} groups=sudo
+  with_dict: "{{ users }}"
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and {{ item.value.sudo }}
+
+- name: Add user to sudo
+  user: name={{ item.key }} groups=wheel
+  with_dict: "{{ users }}"
+  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and {{ item.value.sudo }}
+
 - name: Add pub key to authorized_key file
-  authorized_key: user={{ item.key  }} key="{{ item.value.key }}"
-  with_dict: "{{ users  }}"
-  become: yes
+  authorized_key: user={{ item.key }} key="{{ item.value.key }}"
+  with_dict: "{{ users }}"
 
 # Only Meant for new virtual machine to upgrade packages and reboot
 # Pass options to dpkg on run
@@ -22,7 +33,6 @@
 
 - name: Reboot server
   command: /sbin/reboot
-  become: yes
   when: reboot
 
 - name: Wait for the server to finish rebooting
