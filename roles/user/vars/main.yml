@@ -1,0 +1,9 @@
+---
+reboot: false
+update_packages: 1
+users:
+  amitbiswas:
+    name: Amit Biswas
+    key: "{{ lookup('file', '/Users/amitbiswas/.ssh/id_rsa.pub') }}"
+    pass: 
+    sudo: true
